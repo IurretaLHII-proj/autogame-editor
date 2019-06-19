@@ -1,0 +1,109 @@
+Pendientes:
+Gestión de idiomas euskera/castellano (incluye recarga de ventanas ya existentes con textos traducidos al cambiar el idioma)
+
+[Logs]
+
+CAMBIOS IMPORTANTES!!!  0.31!!!!!
+
+Si la resistencia total del potenciómetro es R y se divide con el regulador en R1 (entre Vin -12V- y Vsalida) y R2 (entre Vsalida y masa), siendo que R1+R2 = R...
+Vout = Vin * R2 / (R1 + R2)    (http://5hertz.com/tutoriales/?p=91)
+Por lo tanto, dados los voltajes de salida, podemos calcular tanto R1 como R2. Sustituyendo R2 por R-R1:
+Vout = Vin * (R-R1) / (R1 + R - R1)
+Vout = Vin * R / R - Vin * R1 / R
+Vout = Vin - Vin * R1 / R
+Vout = Vin * (1 - R1/R)
+Vout/Vin = 1 - R1/R
+Vout/Vin - 1 = -R1/R
+R1 = R * (1 - Vout/Vin)
+Por ejemplo si R = 10 ohm y los voltajes del potenciómetro son 0 y 12,
+Sale voltaje 12 si R1 = R * (1-12/12) = 0
+Sale voltaje 9 si R1 = R * (1-9/12) = R*0,25 = 2,5 ohm
+Sale voltaje 6 si R1 = R * (1-6/12) = R/2 = 5 ohm
+Sale voltaje 3 si R1 = R * (1-3/12) = R*0,75 = 7,5 ohm
+Sale voltaje 0 si R1 = R * (1-0/12) = R = 10 ohm
+O sea, la resistencia es proporcional al voltaje de salida (dada una resistencia total del potenciómetro R de partida). Así que habría que configurar simplemente la R del potenciómetro y cambiando los voltajes, las Rs son automáticas.
+
+
+- Cambios indicados en la web
+- Potenciómetro. Definir nº de posiciones intermedias. Calcular voltajes, proporcional de salida y que se pueda editar  v0#v1#v2...  Las resistencias igual pero buscar la fórmula
+- Añadir las opciones totales de Menú y los cambios en los distintos modos 
+- [115] Al seleccionar un tipo de elemento, si la lista desplegable tiene un tipo que no es el mismo (ni todos), que cambie la lista de selección a ese tipo -el elemento seleccionado-
+- Posibilidad de realizar líneas quebradas para no tener que crear puntos innecesarios que luego hay que definir como no pinchables. 
+  En modo edición punto, al hacer drag encima de una conexión, se crea un punto nuevo y se lleva al final del drag, generando dos líneas donde había una y marcando por defecto el punto nuevo como no sensible.
+- Se puede ordenar la tabla derecha por nombre de componente clickando en la cabecera de la columna (en tres estados: orden directo - orden inverso - orden de creación) 
+  [Comprobar tras ordenar que las selecciones siguen funcionando -dif. entre orden lógico y físico-]
+- Acabar de hacer redo 
+  Acabar de mejorar hacer - undo (que hagan hacer() todas las acciones que modifican)
+- Sin lista de conmutación - selecc. "todas" al entrar en resistencias / pero sí para relés, interruptores y potenciómetros (en estos dos últimos se toman los interruptores - asociar a los estados de interrupción)
+  Resistencias - abrir y guardar que deje solo una resistencia (si son todas iguales) y saque una advertencia si hay distintas
+  Resistencias - también en el interruptor en cada estado
+  Resistencias - también en el potenciómetro en cada estado
+- RELE!!!!  + Resistencias 
+Tenemos todos los estados de interrupción definidos pero no veo ejemplo en el que la medición de resistencias dependan de ellos (ya que hay que aislar el componente que se mide).
+Tenemos la opción de dejar que se puedan definir resistencias diferenciadas por estado de interrupción. 
+Es una de las decisiones que hay que tomar (dejar o no que se puedan definir así: y determinar cuándo se pueden medir las resistencias estando dentro del circuito y cuándo no). 
+A priori yo entiendo que no merece la pena pero valóralo (ya que lo tenemos hecho, no cuesta dejarlo: pero hay que ver si vale para algún caso hipotético, quizás fuera de la automoción).
+Dado entonces que las resistencias se definan fuera de los estados de conmutación, veo que hay dos opciones:
+1) General - sólo se define un valor para cada resistencia
+2) Específica - de momento solo en el caso de los relés, en el que se define una resistencia para ausencia de tensión y otra resistencia para aplicación de tensión (solo en dos puntos concretos - +12 y +0).
+Podríamos decir que todos los elementos tienen un solo estado (aislado) y los relés dos estados (aislado o aislado con voltaje).
+
+Si se pueden:
+- Bug. Al crear una conexión desde una línea se añade un punto en medio. Al deshacer no se borra el punto añadido. (Tema de hacer/deshacer)
+- Menú de selección que se adapte a los botones, tanto en los que están o no seleccionados como en los que deben verse nublados en el menú
+- Permitir intermitencia con dos frecuencias distintas, 1 segundo (si no está averiado) y 500 msgs (si está averiado). Que se pueda usar según el editor necesite
+
+Para ANA!!!
+- ANA! Visual: Encender la bobina cuando hay 12-0 y que se mueva la interrupción
+- Ana! Cambio de fichero de datos
+- Ana! Resolver tensiones. Después de aislar un elemento ¿tiene sentido medir tensiones? Si se puede medir solo hay unas pocas (que no sean 0). ¿Se le pasan o las calcula ella?
+
+
+
+
+---
+Info interna de AutoGame:
+Globales:
+	VentanaEditorAveriaAuto.getLastVentana() -> ventana de edición
+
+Información de configuración de componentes:
+	Int*
+		config1: Estados de interrupción. Textos separados por #. Por ejemplo  0#1#2#15#16
+		config2: Conexiones de interrupción. Conexiones separadas por #. Por ejemplo  ##0-1+0-2##0-1
+		config3: No se usa
+		cbEstados: Combo box especial de interrupción. Vale para edición interactiva de conexiones de interrupción
+		  
+---
+Info fichero .autog
+
+Posibles valores en los voltajes de los puntos:
+  0 - Voltaje 0
+  12 - Voltaje 12
+  nn.nnn - Cualquier voltaje con decimales entre 0 y 12
+  Innn - Un voltaje INTERMITENTE que oscila entre 0 y 12 con una frecuencia indicada con el número (nnn) en milisegundos. [Por ejemplo I50 es un voltaje que empieza en 0, pasa a 12 tras 50 milisegundos, vuelve a 0 50 msgs. después, etc.  (es para los intermitentes)]
+  PNC - Punto de no contacto (voltaje al aire). [si se pone el voltímetro en un punto con voltaje y en otro PNC, el voltímetro tiene que marcar 0. Si se pone entre dos puntos PNC, el voltímetro tiene que marcar 0.]
+  IND - Punto con voltaje indefinido
+
+Sección [COMBINACIONES-INTERRUPCION]
+Posibles líneas:
+ Int2,0 | Int3,0         [Coma entre el nombre del interruptor y el nombre de su estado]
+ Int2,Ax | Int3,Ax       [Valen strings no números, o de varios dígitos]
+ Int2,0,1,15 | Int3,a,c  [Separados por comas los estados que funcionan igual]
+
+Sección [LISTA-COMPONENTES]
+El formato del interruptor es:
+  Int3,Int3,(0#1#2#12#15#16;##0-1+0-2###0-1+0-0;),9,Int3e,Int3s1,Int3s2      [Interruptores]
+
+En el fichero el 4º elemento de los componentes es un número secuencial, correspondiente al tipo. Por ejemplo:
+ f2,Fusible,(;;),0,f2e,f2s
+
+Como "Fusible" es el primer elemento posible de los componentes (de 0 a n-1), tiene el código 0. Es una información redundante con el segundo elemento (el tipo). O sea, esa línea indica:
+nombre,nombre de tipo,listadeconfiguración,código de tipo,lista de puntos
+
+Si se usa el nombre de tipo, se puede ignorar el código de tipo.
+
+Los códigos son los índices de la siguiente lista:
+    public static String[] nombresComponentes = { "Fusible", "Batería", "Masa", "Lámpara", "Pot.alt.luces", "Pot3", "Relé4", "Relé5",
+        "Int2", "Int3", "Int4", "Int5", "Int6", "Motor", "Bocina",
+        "Elec" };
+
